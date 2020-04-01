@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+</head>
+
+<style>
+
+    @import url('https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap');
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 300;
+        font-size: 20px;
+        position: relative;
+    }
+
+    h3 {
+        font-size: 20px;
+        font-weight: 400;
+        color:#000;
+    }
+
+    article {
+        position: absolute;
+        top: 5%;
+        padding: calc(1 * 0.8em);
+
+        -webkit-box-shadow: 3px 3px 5px 0px #ccc;
+        -moz-box-shadow: 3px 3px 5px 0px #ccc;
+        box-shadow: 3px 3px 5px 0px #ccc;
+    }
+
+    main {
+        width: 300px;
+        height: 100%;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    form {
+        width: 100%;
+        height: auto;
+        display: grid;
+        grid-template-rows: 1fr;
+        grid-gap: 1em;
+        padding: calc(2 * 1em);
+        
+        border: 1px solid #ccc;
+
+        -webkit-box-shadow: 3px 3px 5px 6px #ccc;
+        -moz-box-shadow:    3px 3px 5px 6px #ccc; 
+        box-shadow:         3px 3px 5px 6px #ccc;
+    }
+
+    input[type = number] {
+        cursor:pointer;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+        transition: 0.25s;
+        width: 80%; 
+        padding: 4%;
+    } 
+
+    input[type = number]:focus {
+        width: 90%;
+        outline: none;
+    }
+
+
+    input[type = submit] {
+        padding:5px 15px; 
+        border: 1px solid #ccc;
+        cursor:pointer;
+        -webkit-border-radius: 5px;
+        border-radius: 5px; 
+        width: 50%;
+        text-align: center;
+        margin-top: 5%;
+    }
+
+    input[type = submit]:hover {
+        
+        -webkit-box-shadow: 3px 3px 5px 0px #ccc;
+        -moz-box-shadow: 3px 3px 5px 0px #ccc;
+        box-shadow: 3px 3px 5px 0px #ccc;
+
+    }
+
+    button {
+        padding:5px 15px; 
+        border: 1px solid #ccc;
+        cursor:pointer;
+        -webkit-border-radius: 5px;
+        border-radius: 5px; 
+        width: 50%;
+        text-align: center;
+    }
+
+    aside {
+        height: 10vh;
+    }
+
+    p {
+        font-size: 12px;
+        font-weight: 900;
+        transition: 0.5s;
+    }
+
+    p.lastResult {
+        color: #6B7A8F;
+    }
+
+
+
+    i.fa {
+        display: none;
+        transition: 0.3s;
+        -moz-transition: all 2s linear;
+        -webkit-transition: all 2s linear;
+        transition: all 2s linear;
+    }
+
+    i.fa.rotate {
+    -ms-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
+    }
+
+
+</style>
+
+<body>
+
+    <article class="animated slideOutLeft delay-5s">
+        <h3>Guess the number...</h3>
+        <p>You have 10 goes to guess the number! Good Luck!</p>
+    </article>
+
+    <main>
+        <form>
+            <label for="guessField" placeholder="Guess the number... "></label>
+            <input type="number" placeholder="Guess the number... " id="guessField" class="guessField">
+            <input type="submit" value="Submit guess" class="btn guessSubmit">
+
+            <aside class="resultParas">
+            <p class="guesses"></p>
+            <p class="lastResult">
+            <p class="lowOrHi"></p></p>
+            
+            <div class="icon">
+                <i class="fa fa-arrow-circle-o-down arrow" aria-hidden="true"></i>
+            </div>
+
+            </aside>
+
+        </form>
+
+
+    </main>    
+    
+    <script>
+
+        // Creates random number to pick
+        let randomNumber = Math.floor(Math.random() * 100) + 1;
+
+        const winBodyBg = document.querySelector('video');
+
+        const guesses = document.querySelector('.guesses');
+        const lastResult = document.querySelector('.lastResult');
+        const lowOrHi = document.querySelector('.lowOrHi');
+
+        const resultParas = document.querySelector('.resultParas');
+
+        const guessField = document.querySelector('.guessField');
+        const guessSubmit = document.querySelector('.guessSubmit');
+
+        let guessCount = 1;
+        let resetButton;
+
+
+        function checkGuess() {
+            // Assign variable to Number contructor (creates stored number object)
+            // Access on the var guessField  - element with class .guessField
+            // .Value is user input value 
+            let userGuess = Number(guessField.value);
+            // if players (guessCount) first go exectute statement
+            if (guessCount === 1) {
+                guesses.textContent = 'Previous guesses: ';
+            }
+            guesses.textContent += userGuess + ' ';
+
+            if (userGuess === randomNumber) {
+                lastResult.textContent = 'Congratulations! You got it right!';
+                lastResult.style.backgroundColor = '';
+                lowOrHi.textContent = '';
+                setGameOver();
+            } else if (guessCount === 10) {
+                lowOrHi.textContent = 'You are out of turns, try again!';
+                lastResult.style.display = "none";
+                setGameOver();
+            } else {
+                lastResult.textContent = 'Wrong!';
+                lastResult.style.color = '#F7C331';
+                if(userGuess < randomNumber) {
+                    lowOrHi.textContent = 'Last guess was too low!';
+                } else if(userGuess > randomNumber) {
+                    lowOrHi.textContent = 'Last guess was too high!';
+                }
+            }
+            
+            guessCount++;
+            guessField.value = '';
+            guessField.focus();
+
+        }
+
+        guessSubmit.addEventListener('click', checkGuess);
+
+        function setGameOver() {
+            lastResult.textContent = 'Well Done!! Play Agin?!';
+            guessField.disabled = true;
+            guessSubmit.disabled = true;
+            guesses.style.display = "none";
+            guessSubmit.style.display = "none";
+            resetButton = document.createElement('button');
+            resetButton.textContent = 'Start new game';
+            document.querySelector('form').append(resetButton);
+            resetButton.addEventListener('click', resetGame);
+        }
+
+
+        function resetGame() {
+            guessCount = 1;
+
+            const resetParas = document.querySelectorAll('.resultParas p');
+            for (let i = 0 ; i < resetParas.length ; i++) {
+                resetParas[i].textContent = '';
+            }
+
+            resetButton.parentNode.removeChild(resetButton);
+
+            guessField.disabled = false;
+            guessSubmit.disabled = false;
+            resultParas.style.display = "block";
+            guesses.style.display = "block";
+            guessSubmit.style.display = "block";
+            lastResult.style.display = "block";
+            guessField.value = '';
+            guessField.focus();
+
+            lastResult.style.backgroundColor = 'white';
+
+            randomNumber = Math.floor(Math.random() * 100) + 1;
+        }
+
+        // Prevents page refresh on form submission
+        var form = document.querySelector("form");
+        function handleForm(event) { event.preventDefault(); } 
+        form.addEventListener('submit', handleForm);
+
+        
+    </script>
+
+</body>
+</html>
